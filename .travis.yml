@@ -1,0 +1,21 @@
+dist: trusty
+sudo: required
+group: beta
+language: node_js
+node_js:
+  - "9"
+
+cache:
+  directories:
+    - node_modules
+
+before_install:
+  - npm install -g truffle@4.1.13
+  - npm install -g ganache-cli@6.1.6
+
+before_script:
+  - truffle version
+
+script:
+  - npm run ganache-cli &
+  - truffle test

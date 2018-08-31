@@ -1,0 +1,21 @@
+{
+  "name": "privacy-enabled-erc721-base",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "ganache-cli": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 9545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
+    "test": "truffle test"
+  },
+  "author": "pstehlik",
+  "license": "MIT",
+  "dependencies": {
+    "openzeppelin-solidity": "^1.11.0"
+  },
+  "devDependencies": {
+    "ethereumjs-util": "^5.2.0"
+  }
+}
