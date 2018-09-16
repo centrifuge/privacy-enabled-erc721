@@ -27,4 +27,15 @@ contract MockERC721Document is ERC721Document {
       _merkleRoot
     );
   }
+
+  function hashLeafData(
+    string _leafName,
+    string _leafValue,
+    bytes32 _leafSalt 
+  ) 
+  external pure
+  returns (bytes32)
+  {
+    return super._hashLeafData(_leafName, _leafValue, _leafSalt); 
+  }
 }

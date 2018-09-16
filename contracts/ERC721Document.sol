@@ -24,7 +24,7 @@ contract ERC721Document is ERC721Token {
   // Mapping from token details to token ID
   mapping (uint256 => OwnedAnchor) internal tokenDetails_;
 
-  /**
+  /** 
    * @dev Constructor function
    * @param _name string The name of this token 
    * @param _symbol string The shorthand token identifier
@@ -80,6 +80,66 @@ contract ERC721Document is ERC721Token {
     } 
     return false;
   }
+
+  /**
+   * @dev Hashes a leaf's data according to precise-proof leaf 
+   * concatenation rules. Using keccak256 hashing.
+   * @param _leafName string The leaf's name that is being proved
+   * @param _leafValue string The leaf's value that is being proved
+   * @param _leafSalt bytes32 The leaf's that is being proved
+   * @return byte32 keccak256 hash of the concatenated plain-text values
+   */
+  function _hashLeafData(
+    string _leafName,
+    string _leafValue,
+    bytes32 _leafSalt 
+  ) 
+  internal pure
+  returns (bytes32)
+  {
+    return keccak256(abi.encodePacked(_leafName, _leafValue, _leafSalt)); 
+  }
+
+  /**
+   * @dev Mints a token after validating the given merkle proof
+   * and comparing it to the anchor registry's stored hash/doc ID.
+   * @param _to address The recipient of the minted token
+   * @param _tokenId uint256 The ID for the minted token
+   * @param _documentId bytes32 The ID of the document as identified
+   * by the set up anchorRegistry.
+   * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
+   * @param _proof bytes32[] The proof to prove the _leaf authenticity
+   * @param _leafName string The leaf's name that is being proved. 
+   * Will be concatenated for proof verification as outlined in 
+   * precise-proofs library.
+   * @param _leafValue string The leaf's value that is being proved
+   * Will be concatenated for proof verification as outlined in 
+   * precise-proofs library.
+   * @param _leafSalt bytes32 The leaf's that is being proved
+   * Will be concatenated for proof verification as outlined in 
+   * precise-proofs library.
+   */
+  function mintMerklePlainText(
+    address _to, 
+    uint256 _tokenId, 
+    bytes32 _documentId, 
+    bytes32 _merkleRoot, 
+    bytes32[] _proof, 
+    string _leafName,
+    string _leafValue,
+    bytes32 _leafSalt 
+  ) 
+  external 
+  {
+    // explicitly not checking on plain text values being empty
+    // as it might actually be a use-case to have empty values being provided
+
+    // Add business-logic-specific validations based on the clear-text values here
+
+    bytes32 leaf = _hashLeafData(_leafName, _leafValue, _leafSalt); 
+    this.mintMerkle(_to, _tokenId, _documentId, _merkleRoot, _proof, leaf);
+  }
+
 
   /**
    * @dev Mints a token after validating the given merkle proof
