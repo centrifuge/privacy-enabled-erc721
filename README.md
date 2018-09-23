@@ -1,5 +1,7 @@
 # Sample Implementation of User-Mintable Privacy-Enabled NFTs
 
+![Build Status](https://travis-ci.com/centrifuge/privacy-enabled-erc721-base.svg?token=bsfbw2zXLuaTvhVTDXMh&branch=master)
+
 This repo is a sample implemtation of [user-mintable, privacy-enabled NFTs](https://medium.com/centrifuge/user-mintable-privacy-enabled-nft-via-ethereum-erc-721-662ba7e4425) showing the mint process using an on-chain anchor registry as backing for document verification.
 
 ## The General Idea
