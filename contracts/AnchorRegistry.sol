@@ -6,7 +6,7 @@ import "openzeppelin-solidity/contracts/introspection/ERC165.sol";
 /**
  * @title An anchor registry that is used in conjunction with a privacy-enabled NFT registry
  */
-contract AnchorRegistry is ERC165{
+contract AnchorRegistry is ERC165 {
   bytes4 internal constant InterfaceId_AnchorRegistry = 0x04d466b2;
   /*
    * 0x04d466b2 ===

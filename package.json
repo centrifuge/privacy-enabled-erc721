@@ -7,8 +7,10 @@
     "test": "test"
   },
   "scripts": {
-    "ganache-cli": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 9545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
-    "test": "truffle test"
+    "lint:sol": "node_modules/.bin/solium -d .",
+    "ganache-cli": "node_modules/.bin/ganache-cli --gasLimit 4712388 --networkId 99999 -p 9545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
+    "test": "node_modules/.bin/truffle test",
+    "test:withganache": "npm run ganache-cli & npm run test"
   },
   "author": "pstehlik",
   "license": "MIT",
@@ -16,6 +18,10 @@
     "openzeppelin-solidity": "^1.11.0"
   },
   "devDependencies": {
-    "ethereumjs-util": "^5.2.0"
+    "truffle": "4.1.13 ",
+    "ethereumjs-util": "5.2.0",
+    "ganache-cli": "6.1.6",
+    "solidity-coverage": "0.5.4",
+    "solium": "1.1.8"
   }
 }

@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../AnchorRegistry.sol";
+/* solium-disable-next-line */
 import "openzeppelin-solidity/contracts/introspection/SupportsInterfaceWithLookup.sol";
 
  
@@ -22,11 +23,6 @@ contract MockAnchorRegistry is AnchorRegistry, SupportsInterfaceWithLookup {
   {
     // register the supported interfaces to conform as AnchorRegistry
     _registerInterface(InterfaceId_AnchorRegistry);
-  }
-
-  function calculateSelector() public pure returns (bytes4) {
-    AnchorRegistry ar;
-    return ar.getAnchorById.selector;
   }
 
   /**
@@ -62,4 +58,9 @@ contract MockAnchorRegistry is AnchorRegistry, SupportsInterfaceWithLookup {
       anchors[_identifier].documentRoot
     );
   }    
+
+  function calculateSelector() public pure returns (bytes4) {
+    AnchorRegistry ar;
+    return ar.getAnchorById.selector;
+  }  
 }

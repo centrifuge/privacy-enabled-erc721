@@ -15,6 +15,17 @@ contract MockERC721Document is ERC721Document {
   {
   }
 
+  function hashLeafData(
+    string _leafName,
+    string _leafValue,
+    bytes32 _leafSalt 
+  ) 
+  external pure
+  returns (bytes32)
+  {
+    return super._hashLeafData(_leafName, _leafValue, _leafSalt); 
+  }
+
   function isRegisteredInRegistryWithRoot(
     bytes32 _documentId,
     bytes32 _merkleRoot
@@ -26,16 +37,5 @@ contract MockERC721Document is ERC721Document {
       _documentId, 
       _merkleRoot
     );
-  }
-
-  function hashLeafData(
-    string _leafName,
-    string _leafValue,
-    bytes32 _leafSalt 
-  ) 
-  external pure
-  returns (bytes32)
-  {
-    return super._hashLeafData(_leafName, _leafValue, _leafSalt); 
   }
 }
