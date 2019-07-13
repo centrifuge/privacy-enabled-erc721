@@ -43,19 +43,22 @@ contract TestNFT is NFT {
     function checkAnchor(uint anchor, bytes32 droot, bytes32 sigs) public returns (bool) {
         return _checkAnchor(anchor, droot, sigs); 
     }
+    function mint(address usr, uint tkn) public {
+        _mint(usr, tkn);
+    }
 } 
 
 contract NFTTest is DSTest  {
     TestNFT     nft;
     address     self;
-    User        user1;
-    User        user2;
+    User        usr1;
+    User        usr2;
     AnchorMock  anchors;
 
     function setUp() public {
         self = address(this);
-        user1 = new User();
-        user2 = new User();
+        usr1 = new User();
+        usr2 = new User();
         anchors = new AnchorMock();
         nft = new TestNFT("test", "TEST", address(anchors));
     }
@@ -69,6 +72,10 @@ contract NFTTest is DSTest  {
         anchors.file(root, 0); 
        
         assertTrue(nft.checkAnchor(0, data_root, sigs));
+    }
+    function testMint() public logs_gas {
+        nft.mint(address(usr1), 1);
+        assertEq(nft.ownerOf(1), address(usr1));
     }
 
 }

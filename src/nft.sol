@@ -22,7 +22,7 @@ contract AnchorLike {
     function getAnchorById(uint) public returns (uint, bytes32, uint32);
 }
 
-contract NFT is ERC721Enumerable, ERC721Metadata {
+contract NFT is ERC721Metadata {
     // --- Data ---
     AnchorLike public           anchors;
     bytes32 public              ratings; 
@@ -30,10 +30,12 @@ contract NFT is ERC721Enumerable, ERC721Metadata {
 
     string public uri;
     
-    constructor (string memory name, string memory symbol, address anchors_) ERC721Enumerable() ERC721Metadata(name, symbol) public {
+    constructor (string memory name, string memory symbol, address anchors_) ERC721Metadata(name, symbol) public {
         anchors = AnchorLike(anchors_);
     }
 
+    event Minted(address usr, uint tkn);
+    
     // --- Utils ---
     function concat(bytes32 b1, bytes32 b2) pure internal returns (bytes memory)
     {
@@ -72,13 +74,10 @@ contract NFT is ERC721Enumerable, ERC721Metadata {
             return root == sha256(concat(sigs, droot));
         }
     }
-
-    // unpack takes one bytes32 argument and turns it into two uint256 to make it fit into a field element
-    function unpack(bytes32 x) public returns (uint y, uint z) {
-        bytes32 a = bytes32(x);
-        bytes32 b = (a>> 128);
-        bytes32 c = ((a<< 128)>> 128);
-        return (uint(b), uint(c));
+    function _mint(address usr, uint tkn) internal {
+        super._mint(usr, tkn);
+        emit Minted(usr, tkn);
     }
+
 }
 
