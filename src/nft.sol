@@ -63,10 +63,14 @@ contract NFT is ERC721Enumerable, ERC721Metadata {
     }
 
     // --- NFT ---
-    function checkAnchor(uint anchor, bytes32 droot, bytes32 sigs) public returns (bool) {
+    function _checkAnchor(uint anchor, bytes32 droot, bytes32 sigs) internal returns (bool) {
         bytes32 root;
         (, root, ) = anchors.getAnchorById(anchor);
-        return root == sha256(concat(droot, sigs));
+        if (droot < sigs) {
+            return root == sha256(concat(droot, sigs));
+        } else {
+            return root == sha256(concat(sigs, droot));
+        }
     }
 
     // unpack takes one bytes32 argument and turns it into two uint256 to make it fit into a field element
