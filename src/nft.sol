@@ -17,12 +17,13 @@ pragma solidity >=0.4.24;
 
 import { ERC721Enumerable } from "./openzeppelin-solidity/token/ERC721/ERC721Enumerable.sol";
 import { ERC721Metadata } from "./openzeppelin-solidity/token/ERC721/ERC721Metadata.sol";
+import "./merkle.sol";
 
 contract AnchorLike {
     function getAnchorById(uint) public returns (uint, bytes32, uint32);
 }
 
-contract NFT is ERC721Metadata {
+contract NFT is ERC721Metadata, MerkleVerifier {
     // --- Data ---
     AnchorLike public           anchors;
     bytes32 public              ratings; 
@@ -74,6 +75,7 @@ contract NFT is ERC721Metadata {
             return root == sha256(concat(sigs, droot));
         }
     }
+
     function _mint(address usr, uint tkn) internal {
         super._mint(usr, tkn);
         emit Minted(usr, tkn);
