@@ -41,11 +41,11 @@ contract AnchorMock {
 contract TestNFT is NFT {
     constructor (address anchors_) NFT("Test NFT", "TNFT", anchors_) public {
     }
-   
-    
+
     function checkAnchor(uint anchor, bytes32 droot, bytes32 sigs) public returns (bool) {
-        return _checkAnchor(anchor, droot, sigs); 
+        return _checkAnchor(anchor, droot, sigs);
     }
+
     // --- Mint Method ---
     function mint(address usr, uint tkn, uint anchor, bytes32 data_root, bytes32 signatures_root, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts, bytes32[][] memory proofs) public {
 
@@ -59,60 +59,47 @@ contract TestNFT is NFT {
       _mint(usr, tkn);
     }
 }
+
 contract NFTTest is DSTest {
     TestNFT         nft;
     address         self;
     User            usr1;
     AnchorMock      anchors;
+    bytes[]         properties;
+    bytes[]         values;
+    bytes32[]       salts;
+    bytes32[][]     proofs;
+    bytes32         sigs;
+    bytes32         data_root;
+    bytes32         root;
 
     function setUp() public {
         self = address(this);
         usr1 = new User();
         anchors = new AnchorMock();
         nft = new TestNFT(address(anchors));
-    }
 
-    function hash(bytes32 a, bytes32 b) public view returns (bytes32) {
-            if (a < b) {
-                return sha256(abi.encodePacked(a, b));
-            } else {
-                return sha256(abi.encodePacked(b, a));
-            }
-    }
+        // set up a bunch of values
+        sigs = 0xab3a51423550a6ac6a5ae3b07438fe4a16a7ebe3119352200a348af581b83d5c;
+        data_root = 0x9a5962acaca36b0607e4c46733219a2aa6abc29c41ed6988f19dc86865743cf5;
+        root = 0x11ac8d72d72354e3e64271878b698f9e770619ace3e7c5d6aa02968f729b453f;
 
-    function testAnchor() public logs_gas {
-        bytes32 sigs = 0x5d9215ea8ea2c12bcc724d9690de0801a1b9658014c29c2a26d3b89eaa65cd07;
-        bytes32 data_root = 0x7fdb7b2d4ddb3ca67c1a79725fc9b3e4e2b8d4c15bedc8cac1873fa58a75b837;
-        bytes32 root = 0x0ea4cc3dcbc2b85a3032d00edb8314119b9b199ca05d8a7c35e0427a8ae64991;
-
-        // Setting AnchorMock to return a given root
-        anchors.file(root, 0); 
-          
-        assertTrue(nft.checkAnchor(0, data_root, sigs));
-    }
-
-
-    function testMint() public logs_gas {
-        bytes32 sigs = 0xab3a51423550a6ac6a5ae3b07438fe4a16a7ebe3119352200a348af581b83d5c;
-        bytes32 data_root = 0x9a5962acaca36b0607e4c46733219a2aa6abc29c41ed6988f19dc86865743cf5;
-        bytes32 root = 0x11ac8d72d72354e3e64271878b698f9e770619ace3e7c5d6aa02968f729b453f;
-
-        bytes[] memory properties = new bytes[](3);
+        properties = new bytes[](3);
         properties[0] = hex"010000000000001cdb691b0c78e9e1432d354d52e26b3cd5054cd1261c4272bf8fce2bcf285908f300000005";
         properties[1] = hex"010000000000001cc559f889f1afe5f0e8d3ad327b66c9b2facadb9918e2ba45963fe76e590f9e4200000005";
         properties[2] = hex"010000000000001cc26ac898297e7f1c950218e45d1933059ab9c2b284aac57b36e1f6cd46829ead00000005";
 
-        bytes[] memory values = new bytes[](3);
+        values = new bytes[](3);
         values[0] = hex"0000000000000000000000000000000000000000000000000000000000000064";
         values[1] = hex"00000000000000000000000000000000000000000000000000000000000003e8";
         values[2] = hex"00000000000000000000000000000000000000000000000000000000000007d0";
 
-        bytes32[] memory salts = new bytes32[](3);
+        salts = new bytes32[](3);
         salts[0] = 0xc0798a18953192518377f216f97e7a8b42249451664a39f9e52e7ee32045a0eb;
         salts[1] = 0xf6fda2e48246f91c98e317377f3514298d221f7e93d62a315b9a956f33c7e594;
         salts[2] = 0x038fea1f64d9925ce096e37db05f8bd6add09493574f29e0b40d6a48ea616379;
 
-        bytes32[][] memory proofs = new bytes32[][](3);
+        proofs = new bytes32[][](3);
         proofs[0] = new bytes32[](6);
         proofs[0][0] = 0xb77b0c26c232d21b5392643c29a07aad367411049b9ee50ae1a4377d5c25a079;
         proofs[0][1] = 0x298a3288a3590a18ad0000eab86b87182432424ca2cafd0ad983b179accd743f;
@@ -136,12 +123,45 @@ contract NFTTest is DSTest {
         proofs[2][3] = 0x39265faac300ea00ff3084498ab26d5e07532a876e7e985509f0db35ffa85b17;
         proofs[2][4] = 0x9c733d7a69131bbda95f765467e0533bbad0f9380bf759e2883d3a7e00075962;
         proofs[2][5] = 0x904a689147f7d2a86a39d8f4b542aa72f95ef86c872904640c47e0519b378e6a;
+    }
+
+    function hash(bytes32 a, bytes32 b) public view returns (bytes32) {
+        if (a < b) {
+            return sha256(abi.encodePacked(a, b));
+        } else {
+            return sha256(abi.encodePacked(b, a));
+        }
+    }
+
+    function testAnchor() public logs_gas {
 
         // Setting AnchorMock to return a given root
         anchors.file(root, 0);
+        assertTrue(nft.checkAnchor(0, data_root, sigs));
+    }
 
+    function testFailAnchor() public logs_gas {
+
+        // Set failing root
+        root = 0x11ac8d72d72354e3e64271878b698f9e770619ace3e7c5d6aa02968f729b453e;
+        // Set AnchorMock
+        anchors.file(root, 0);
+        require(nft.checkAnchor(0, data_root,  sigs));
+    }
+
+    function testMint() public logs_gas {
+
+        // Setting AnchorMock to return a given root
+        anchors.file(root, 0);
          // Test that the mint method works
         nft.mint(address(usr1), 1, 0, data_root, sigs, properties, values, salts, proofs);
         assertEq(nft.ownerOf(1), address(usr1));
     }
+
+    function testFailMint() public logs_gas {
+
+        // Test that the mint method fails if proofs change
+        proofs[2][0] = 0xca3cd23eeb4c48ab225a9fa8c58587fe404a0c52235fc853e22ee57f105b448c;
+        nft.mint(address(usr1), 1, 0, data_root, sigs, properties, values, salts, proofs);
+   }
 }
