@@ -20,12 +20,12 @@ import "../merkle.sol";
 
 
 contract MerkleTest is DSTest, MerkleVerifier {
-    function hash(bytes32 a, bytes32 b) public view returns (bytes32) {
-            if (a < b) {
-                return sha256(abi.encodePacked(a, b));
-            } else {
-                return sha256(abi.encodePacked(b, a));
-            }
+    function hash(bytes32 a, bytes32 b) public pure returns (bytes32) {
+        if (a < b) {
+            return sha256(abi.encodePacked(a, b));
+        } else {
+            return sha256(abi.encodePacked(b, a));
+        }
     }
 
     function testVerifier() public {
@@ -33,22 +33,18 @@ contract MerkleTest is DSTest, MerkleVerifier {
         bytes32 leaf2 = sha256("2");
         bytes32 leaf3 = sha256("3");
         bytes32 leaf4 = sha256("4");
-
-        bytes32 parent1 = hash(leaf1, leaf2); 
+        bytes32 parent1 = hash(leaf1, leaf2);
         bytes32 parent2 = hash(leaf3, leaf4);
         bytes32 root = hash(parent1, parent2);
-
         bytes32[] memory matches = new bytes32[](10);
-        matches[0] = root; 
+        matches[0] = root;
         uint len = 1;
-        bytes32[][] memory proofs = new bytes32[][](3); 
-        
+        bytes32[][] memory proofs = new bytes32[][](3);
         bytes32[] memory proof = new bytes32[](2);
         proof[0] = leaf2;
         proof[1] = parent2;
-       
         proofs[0] = proof;
-        (matches, len) = verify(proof, matches, len, leaf1); 
+        (matches, len) = verify(proof, matches, len, leaf1);
         assertEq(len, 4);
 
         proof = new bytes32[](1);
@@ -62,7 +58,7 @@ contract MerkleTest is DSTest, MerkleVerifier {
         proofs[2] = proof;
         (matches, len) = verify(proof, matches, len, leaf2);
         assertEq(len, 5);
-        
+
         matches = new bytes32[](10);
         matches[0] = root;
         len = 1;

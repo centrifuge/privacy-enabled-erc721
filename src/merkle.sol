@@ -18,20 +18,20 @@ pragma solidity >=0.4.24;
 
 // This is an optimized Merkle proof checker. It caches all valid leaves in an array called
 // matches. If a proof is validated, all the intermediate hashes will be added to the array.
-// When validating a subsequent proof, that proof will stop being validated as soon as a hash 
+// When validating a subsequent proof, that proof will stop being validated as soon as a hash
 // has been computed that has been a computed hash in a previously validated proof.
 //
 // When submitting a list of proof, the client can thus choose to chop of all the already proven
 // nodes when submitting multiple proofs.
 //
-// matches: matches must be initialized with length = sum of all proof hashes to ensure all 
+// matches: matches must be initialized with length = sum of all proof hashes to ensure all
 //          computed hashes can be stored.
 //
 // len:     is a pointer that points to the first non-empty element in the matches array.
 //          Solidity unfortunately has no internal count.
-//  
+//
 // In the first call to verify(), you should pass in the matches containing exactly one hash,
-// the Merkle root and len should be 1. For any subsequent call, the return values from the 
+// the Merkle root and len should be 1. For any subsequent call, the return values from the
 // previous call to verify should be used.
 //
 contract MerkleVerifier {
@@ -44,8 +44,8 @@ contract MerkleVerifier {
         }
         return false;
     }
-     
-    function verify(bytes32[] memory proof, bytes32[] memory matches, uint len, bytes32 leaf) internal returns (bytes32[] memory, uint) {
+
+    function verify(bytes32[] memory proof, bytes32[] memory matches, uint len, bytes32 leaf) internal pure returns (bytes32[] memory, uint) {
         bytes32 res = leaf;
         if (find(matches, res)) {
             return (matches, len);
@@ -69,7 +69,7 @@ contract MerkleVerifier {
         return (matches, 0);
     }
 
-    function verify(bytes32[][] memory proofs, bytes32[] memory matches, uint len, bytes32[] memory leafs) internal returns (bool) {
+    function verify(bytes32[][] memory proofs, bytes32[] memory matches, uint len, bytes32[] memory leafs) internal pure returns (bool) {
         require(len>0);
         for (uint256 i = 0; i < proofs.length; i++) {
             (matches, len) = verify(proofs[i], matches, len, leafs[i]);
@@ -78,9 +78,9 @@ contract MerkleVerifier {
             }
         }
         return true;
-    } 
+    }
 
-    function verify(bytes32[][] memory proofs, bytes32 root, bytes32[] memory leafs) internal returns (bool) {
+    function verify(bytes32[][] memory proofs, bytes32 root, bytes32[] memory leafs) internal pure returns (bool) {
         uint len = 0;
         for (uint256 i = 0; i< proofs.length; i++) {
             len += proofs[i].length;
