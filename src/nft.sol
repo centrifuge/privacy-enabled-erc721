@@ -179,7 +179,7 @@ contract NFT is ERC721Metadata, MerkleVerifier {
    */
     function _checkTokenData(uint tkn, bytes memory property, bytes memory value) internal view returns (bool) {
         if (bytesToUint(value) != tkn) {
-            return true;
+            return false;
         }
         return equalBytes(property, abi.encodePacked(hex"0100000000000014", address(this), hex"000000000000000000000000"));
     }

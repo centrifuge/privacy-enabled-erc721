@@ -103,7 +103,6 @@ contract TestNFT is NFT {
 
       require(verify(proofs, data_root, leaves), "Validation of proofs failed.");
       require(_latestDoc(data_root, _bytesToUint(values[4])), "Document is not the latest version.");
-      require(_checkTokenData(tkn, properties[3], values[3]), "Invalid token data");
       _signed(0, data_root, signature);
       _mint(usr, tkn);
     }
@@ -274,7 +273,7 @@ contract NFTTest is DSTest {
         require(nft.checkTokenData(tkn, property, value));
    }
 
-   function testMint() public logs_gas {return;
+   function testMint() public logs_gas {
        // Setting IDFactoryMock to return a valid identity
        identity_factory.file(true);
        // Setting KeyManagerMock to return a valid key
