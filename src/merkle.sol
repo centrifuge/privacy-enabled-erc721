@@ -92,4 +92,19 @@ contract MerkleVerifier {
         return verify(proofs, matches, len, leafs);
     }
 
+    function verify(address to, bytes32 assetHash, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) internal pure returns (bool) {
+        require(to != address(0), "not a valid address");
+
+        // construct assetHash from the props, values, salts
+        // append to address
+        bytes memory hash = abi.encodePacked(to);
+
+        // append hashes
+        for (uint i=0; i< properties.length; i++) {
+            hash = abi.encodePacked(hash, keccak256(abi.encodePacked(properties[i], values[i], salts[i])));
+        }
+
+        return keccak256(hash) == assetHash;
+    }
+
 }
