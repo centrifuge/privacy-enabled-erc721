@@ -19,8 +19,26 @@ pragma experimental ABIEncoderV2;
 import "../nft.sol";
 import "../../lib/ds-test/src/test.sol";
 
+contract MockAssetManager {
+    mapping (bytes32 => uint8) public assets;
+
+    function store(bytes32 asset) public {
+        require(assets[asset] != 1, "Asset cannot be changed once confirmed");
+        assets[asset] = 1;
+    }
+
+    function isAssetValid(bytes32 asset) external view returns (bool) {
+        if (assets[asset] == 1) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
 contract NFTTest is DSTest {
     NFT nft;
+    MockAssetManager assetManager;
     uint256 tokenId;
     address to;
     bytes32 assetHashValid;
@@ -28,13 +46,14 @@ contract NFTTest is DSTest {
     bytes[] props;
     bytes[] values;
     bytes32[] salts;
+    bytes32[] saltsInvalid;
 
     function setUp() public {
-        nft = new NFT("NFT", "NFT");
+        assetManager = new MockAssetManager();
+        nft = new NFT("NFT", "NFT", address(assetManager));
         tokenId = uint256(keccak256(hex"000200000000000c"));
         to = bytesToAddress(hex"f2bd5de8b57ebfc45dcee97524a7a08fccc80aef");
         assetHashValid = 0xee49e1ca6aa1204cfb571094ce14ab254e5185005cbee3f26af9afd3140ac12d;
-        assetHashInvalid = 0xc437005805629feeb716f4ff329f62a4cf393f4cbfc7cd14fc0a64d8321a3e99;
         props = new bytes[](3);
         props[0] = hex"392614ecdd98ce9b86b6c82242ae1b85aaf53ebe6f52490ed44539c88215b17a";
         props[1] = hex"8db964a550ede5fea3f059ca6a74cf436890bb1d31a39c63ea0ccfbc8d8235fd";
@@ -49,6 +68,11 @@ contract NFTTest is DSTest {
         salts[0] = 0x34ea1aa3061dca2e1e23573c3b8866f80032d18fd85934d90339c8bafcab0408;
         salts[1] = 0xe257b56611cf3244b2b63bfe486ea3072f10223d473285f8fea868aae2323b39;
         salts[2] = 0xed58f4a0d0c76770c81d2b1cc035413edebb567f5c006160596dc73b9297a9cc;
+
+        saltsInvalid = new bytes32[](3);
+        saltsInvalid[0] = 0x34ea1aa3061dca2e1e23573c3b8866f80032d18fd85934d90339c8bafcab0408;
+        saltsInvalid[1] = 0xe257b56611cf3244b2b63bfe486ea3072f10223d473285f8fea868aae2323b99;
+        saltsInvalid[2] = 0xed58f4a0d0c76770c81d2b1cc035413edebb567f5c006160596dc73b9297a9cd;
     }
 
     function bytesToAddress(bytes memory bys) private pure returns (address addr) {
@@ -58,28 +82,30 @@ contract NFTTest is DSTest {
     }
 
     function testFailInvalidToAddress() public logs_gas {
-        nft.mint(address(0), tokenId, assetHashValid, props, values, salts);
+        nft.mint(address(0), tokenId, props, values, salts);
         assertEq(address(0), nft.ownerOf(tokenId));
     }
 
     function testFailMismatchAssetHash() public logs_gas {
-        nft.mint(to, tokenId, assetHashInvalid, props, values, salts);
+        nft.mint(to, tokenId, props, values, saltsInvalid);
         assertEq(nft.balanceOf(to), 0);
     }
 
-    function testNFTSuccess() public logs_gas {
-        nft.mint(to, tokenId, assetHashValid, props, values, salts);
+    function testSuccessNFTMint() public logs_gas {
+        assetManager.store(assetHashValid);
+        nft.mint(to, tokenId, props, values, salts);
         assertEq(nft.balanceOf(to), 1);
         assertEq(nft.ownerOf(tokenId), to);
     }
 
     function testFailNFTOverride() public logs_gas {
-        nft.mint(to, tokenId, assetHashValid, props, values, salts);
+        assetManager.store(assetHashValid);
+        nft.mint(to, tokenId, props, values, salts);
         assertEq(nft.balanceOf(to), 1);
         assertEq(nft.ownerOf(tokenId), to);
 
         // mint again
-        nft.mint(to, tokenId, assetHashValid, props, values, salts);
+        nft.mint(to, tokenId, props, values, salts);
         assertEq(nft.balanceOf(to), 1);
     }
 }

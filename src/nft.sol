@@ -18,24 +18,32 @@ pragma experimental ABIEncoderV2;
 
 import { ERC721Metadata } from "./openzeppelin-solidity/token/ERC721/ERC721Metadata.sol";
 
+contract IAssetManager {
+    function isAssetValid(bytes32 asset) external view returns (bool);
+}
+
 contract NFT is ERC721Metadata {
 
-    constructor(string memory name, string memory symbol) ERC721Metadata(name, symbol) public {}
+    constructor(string memory name, string memory symbol, address _assetManager) ERC721Metadata(name, symbol) public {
+        assetManager = IAssetManager(_assetManager);
+    }
 
     event Minted(address to, uint tokenId);
+
+    IAssetManager assetManager;
 
   /**
    * @dev Mints a token to a specified address
    * @param to address deposit address of token
    * @param tokenId uint256 tokenID
    */
-    function mint(address to, uint256 tokenId, bytes32 assetHash, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) public {
-        require(_verify(to, assetHash, properties, values, salts), "asset hash mismatch");
+    function mint(address to, uint256 tokenId, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) public {
+        require(_verify(to, properties, values, salts), "asset hash invalid");
         super._mint(to, tokenId);
         emit Minted(to, tokenId);
     }
 
-    function _verify(address to, bytes32 assetHash, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) internal pure returns (bool) {
+    function _verify(address to, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) internal view returns (bool) {
         require(to != address(0), "not a valid address");
 
         // construct assetHash from the props, values, salts
@@ -47,7 +55,7 @@ contract NFT is ERC721Metadata {
             hash = abi.encodePacked(hash, keccak256(abi.encodePacked(properties[i], values[i], salts[i])));
         }
 
-        return keccak256(hash) == assetHash;
+        return assetManager.isAssetValid(keccak256(hash));
     }
 }
 
