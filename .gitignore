@@ -1,17 +1,1 @@
-# Compiled binary addons (http://nodejs.org/api/addons.html)
-build
-
-# Misc
-__generated__
-.DS_Store
-
-# VS Code
-.vscode/*
-!.vscode/snippets
-!.vscode/settings.json
-
-# GoLand IDE
-.idea
-
-# node
-node_modules/
+out

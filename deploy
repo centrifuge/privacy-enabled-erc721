@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+echo "
+-------------------------------------------------------------------------------
+NFT Deployment Script
+-------------------------------------------------------------------------------
+This script deploys an instance of a Centrifuge NFT 
+
+Prerequisites:
+* This script uses the Seth Ethereum CLI which can be installed from http://dapp.tools by running `curl https://dapp.tools/install | sh`
+* Set the variable ANCHOR_REPOSITORY to an instance of the Centrifuge Anchor Repository (https://github.com/centrifuge/centrifuge-ethereum-contracts/blob/develop/contracts/AnchorRepository.sol). 
+* If you want to use an existing deployment of the anchor registry, they can be found here: https://github.com/centrifuge/go-centrifuge/blob/develop/build/configs/default_config.yaml
+
+Please specify the following env variables: 
+* REGISTRY_SYMBOL
+* REGISTRY_NAME
+* ANCHOR_REPOSITORY
+"
+set -ex
+
+REGISTRY=$(seth send --create out/NFT.bin 'NFT(string memory, string memory, address)' $REGISTRY_NAME $REGISTRY_SYMBOL $ANCHOR_REPOSITORY)
+
+set +ex
+echo "-------------------------------------------------------------------------------"
+echo "NFT registry deployed to: $REGISTRY"
+echo "-------------------------------------------------------------------------------"

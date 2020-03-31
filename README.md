@@ -1,5 +1,4 @@
-# Sample Implementation of User-Mintable Privacy-Enabled NFTs
-
+# User-Mintable Privacy-Enabled NFTs
 [![Build Status](https://travis-ci.org/centrifuge/privacy-enabled-erc721-base.svg?branch=master)](https://travis-ci.org/centrifuge/privacy-enabled-erc721-base)
 
 This repo is a sample implemtation of [user-mintable, privacy-enabled NFTs](https://medium.com/centrifuge/user-mintable-privacy-enabled-nft-via-ethereum-erc-721-662ba7e4425) showing the mint process using an on-chain anchor registry as backing for document verification.
@@ -27,41 +26,27 @@ The sample implementation utilizes the [precise-proofs](https://github.com/centr
 
 `precise-proofs` supports multiple hashing algorithms. This NFT implementation uses keccak256 as the hashing algorithm for the merkle tree/proof generation.
 
-## The Paper
-
 Please read the paper on [User-Mintable, Privacy-Enabled NFTs](https://www.centrifuge.io/assets/Privacy-Enabled%20NFTs%20Paper.pdf) for more background on the on-chain and off-chain components and the minting process.
 
-## Getting Started
 
-This sample implementation is a [truffle](https://truffleframework.com/) project.
+## Development
+Tinlake uses [dapp.tools](https://github.com/dapphub/dapptools) for development. Please install the `dapp` client. 
 
-The easiest starting point is look at the the [ERC721Document](contracts/ERC721Document.sol#L75) implementation of the mint method. It accepts clear text values, verifies the merkle proof, and proceeds on to minting the NFT is all checks pass.
-
-### Install/Run
-Start by installing dependencies via
-```
-npm install
+### Install Dependencies
+```bash 
+dapp update
 ```
 
-To run the tests in one go with ganache starting up in the same terminal (messier output and slower when running tests multiple times):
+### Run Tests
+The tests for Tinlake are written in Solidity.
+#### Run all tests
+```bash
+dapp test
 ```
-npm run test:withganache
+#### Run a specific tests
+A regular expression can be used to only run specific tests.
+```bash
+dapp test -r <REGEX> 
 ```
-
-Alternatively, run ganache in one terminal
-```
-npm run ganache-cli
-```
-
-And run the tests in second terminal
-```
-npm run test
-```
-
-## Helper commands
-
-If you are using [reflex](https://github.com/cespare/reflex) you can run the tests whenever a file changes.
-
-```
-reflex -r "\.test\.js|\.sol" -R "node_modules" -- npm run test
-```
+## Community
+Join our public slack channel to discuss development, ask questions and contribute: [Centrifuge Slack](https://centrifuge.io/slack)
