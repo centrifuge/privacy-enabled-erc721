@@ -23,11 +23,11 @@ contract AssetManagerMock {
     mapping (bytes32 => uint8) public assets;
     bool assetValid;
 
-    function file(bool assetVaild_) public {
-        assetValid = assetVaild_;
+    function file(bool assetValid_) public {
+        assetValid = assetValid_;
     }
 
-    function isAssetValid(bytes32 asset) external view returns (bool) {
+    function isAssetValid(bytes32 ) external view returns (bool) {
         return assetValid;
     }
 }
@@ -44,7 +44,7 @@ contract KeyManagerMock {
         validPurpose = validity_;
     }
 
-    function keyHasPurpose(bytes32 pbKey, uint purpose_) public view returns (bool) {
+    function keyHasPurpose(bytes32, uint) public view returns (bool) {
         return validPurpose;
     }
 }
@@ -57,7 +57,7 @@ contract IDFactoryMock {
         validIdentity = validity_;
     }
 
-    function createdIdentity(address identity_) public returns (bool) {
+    function createdIdentity(address) public view returns (bool) {
         return validIdentity;
     }
 }
@@ -69,9 +69,9 @@ contract TestNFT is NFT {
     /**
     @dev Mints NFT after verifying the asset, signture of the collaborator and token uniqueness
     */
-    function mint(address usr, uint tkn, bytes32 data_root, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) public {
-        require(_verify_asset(usr, properties, values, salts), "asset hash invalid");
-        _signed(data_root, values[0]); // expect the first value to be collaborator signature
+    function mint(address usr, uint tkn, bytes32 dataRoot, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) public {
+        require(_verifyAsset(usr, properties, values, salts), "asset hash invalid");
+        _signed(dataRoot, values[0]); // expect the first value to be collaborator signature
         _checkTokenData(tkn, properties[1], values[1]); // expects the second property and value to be token unique proof
         _mint(usr, tkn);
     }

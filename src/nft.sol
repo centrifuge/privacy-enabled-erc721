@@ -45,10 +45,10 @@ contract NFT is ERC721Metadata {
     IdentityFactoryLike identityFactory;
     KeyManagerLike keyManager;
 
-    constructor(string memory name, string memory symbol, address _assetManager, address _identityFactory, address _keyManager) ERC721Metadata(name, symbol) public {
-        assetManager = AssetManagerLike(_assetManager);
-        identityFactory = IdentityFactoryLike(_identityFactory);
-        keyManager = KeyManagerLike(_keyManager);
+    constructor(string memory name, string memory symbol, address assetManager_, address identityFactory_, address keyManager_) ERC721Metadata(name, symbol) public {
+        assetManager = AssetManagerLike(assetManager_);
+        identityFactory = IdentityFactoryLike(identityFactory_);
+        keyManager = KeyManagerLike(keyManager_);
     }
 
     event Minted(address to, uint tokenId);
@@ -70,7 +70,7 @@ contract NFT is ERC721Metadata {
      * @param values bytes[] value associated with each property
      * @param salts bytes[] salt associated with each property
      */
-    function _verify_asset(address to, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) internal view returns (bool) {
+    function _verifyAsset(address to, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) internal view returns (bool) {
         require(to != address(0), "not a valid address");
 
         // construct assetHash from the props, values, salts
