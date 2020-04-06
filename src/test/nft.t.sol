@@ -27,25 +27,31 @@ contract AssetManagerMock {
         assetValid = assetValid_;
     }
 
-    function isAssetValid(bytes32 ) external view returns (bool) {
-        return assetValid;
+    function verify(bytes32 ) external view {
+        require(assetValid, "asset doesn't exist");
     }
 }
 
 contract KeyManagerMock {
     bytes32 key;
-    bytes32 value;
-    uint purpose;
     uint[] mem;
-    bool validPurpose;
-    uint32 revoked;
+    uint32 revoked = 1;
+    bool valid;
 
-    function file(bool validity_) public {
-        validPurpose = validity_;
+    function file(uint32 revoked_) public {
+        revoked = revoked_;
     }
 
-    function keyHasPurpose(bytes32, uint) public view returns (bool) {
-        return validPurpose;
+    function file(bool valid_) public {
+        valid = valid_;
+    }
+
+    function getKey(bytes32) public view returns (bytes32, uint[] memory, uint32) {
+        return (key, mem, revoked);
+    }
+
+    function keyHasPurpose(bytes32, uint) public view returns (bool){
+        return valid;
     }
 }
 
@@ -63,15 +69,17 @@ contract IDFactoryMock {
 }
 
 contract TestNFT is NFT {
-    constructor (address asset_manager_, address key_manager_, address identity_factory_) NFT("Test NFT", "TNFT", asset_manager_, key_manager_, identity_factory_) public {
+    address identity;
+    constructor (address assetManager, address identityFactory, address keyManager) NFT("Test NFT", "TNFT", assetManager, identityFactory) public {
+        identity = keyManager;
     }
 
     /**
     @dev Mints NFT after verifying the asset, signture of the collaborator and token uniqueness
     */
     function mint(address usr, uint tkn, bytes32 dataRoot, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) public {
-        require(_verifyAsset(usr, properties, values, salts), "asset hash invalid");
-        _signed(dataRoot, values[0]); // expect the first value to be collaborator signature
+        _verifyAsset(usr, properties, values, salts);
+        _signed(identity, dataRoot, values[0]); // expect the first value to be collaborator signature
         _checkTokenData(tkn, properties[1], values[1]); // expects the second property and value to be token unique proof
         _mint(usr, tkn);
     }
@@ -104,7 +112,7 @@ contract NFTTest is DSTest {
         props[2] = hex"000100000000000d";
 
         values = new bytes[](3);
-        values[0] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c01";
+        values[0] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c0101";
         values[1] = hex"fc03d8fc2094952d153396f1904513850b4f76fcfeaef9c44dcb6d7de1921674";
         values[2] = hex"443e4fa3d89952c9f24433d1112713a075d9205195dc9a16a12301caa1afb5d2";
 
@@ -119,10 +127,6 @@ contract NFTTest is DSTest {
         saltsInvalid[2] = 0xed58f4a0d0c76770c81d2b1cc035413edebb567f5c006160596dc73b9297a9cd;
     }
 
-    function testFailInvalidToAddress() public logs_gas {
-        nft.mint(address(0), tokenId, dataRoot, props, values, salts);
-    }
-
     function testFailMismatchAssetHash() public logs_gas {
         nft.mint(to, tokenId, dataRoot, props, values, saltsInvalid);
     }
@@ -132,16 +136,31 @@ contract NFTTest is DSTest {
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
-    function testFailPublicKeyNotValid() public logs_gas {
+    function testFailSignatureValueNotValid() public logs_gas {
+        assetManager.file(true);
+        identityFactory.file(true);
+        values[0] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c01";
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailKeyDoNotHaveValidPurpose() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
-    function testFailTokenIDValueMismatch() public logs_gas {
+    function testFailKeyRevoked() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
         keyManager.file(true);
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailTokenIdMismatch() public logs_gas {
+        assetManager.file(true);
+        identityFactory.file(true);
+        keyManager.file(true);
+        keyManager.file(0);
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -149,6 +168,7 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         keyManager.file(true);
+        keyManager.file(0);
         values[1] = hex"0000000000000000000000000000000000000000000000000000000000000001";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
@@ -157,6 +177,7 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         keyManager.file(true);
+        keyManager.file(0);
         values[1] = hex"0000000000000000000000000000000000000000000000000000000000000001";
         props[1] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
         nft.mint(to, tokenId, dataRoot, props, values, salts);
@@ -168,6 +189,7 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         keyManager.file(true);
+        keyManager.file(0);
         values[1] = hex"0000000000000000000000000000000000000000000000000000000000000001";
         props[1] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
         nft.mint(to, tokenId, dataRoot, props, values, salts);

@@ -20,11 +20,12 @@ import { ERC721Metadata } from "./openzeppelin-solidity/token/ERC721/ERC721Metad
 import "./openzeppelin-solidity/cryptography/ECDSA.sol";
 
 contract AssetManagerLike {
-    function isAssetValid(bytes32 asset) external view returns (bool);
+    function verify(bytes32) public view;
 }
 
 contract KeyManagerLike {
     function keyHasPurpose(bytes32, uint) public view returns (bool);
+    function getKey(bytes32) public view returns (bytes32, uint[] memory, uint32);
 }
 
 contract IdentityFactoryLike {
@@ -43,12 +44,14 @@ contract NFT is ERC721Metadata {
 
     AssetManagerLike assetManager;
     IdentityFactoryLike identityFactory;
-    KeyManagerLike keyManager;
 
-    constructor(string memory name, string memory symbol, address assetManager_, address identityFactory_, address keyManager_) ERC721Metadata(name, symbol) public {
+    // Base for constructing dynamic metadata token URIS
+    // the token uri also contains the registry address. uri + contract address + tokenId
+    string public uri;
+
+    constructor(string memory name, string memory symbol, address assetManager_, address identityFactory_) ERC721Metadata(name, symbol) public {
         assetManager = AssetManagerLike(assetManager_);
         identityFactory = IdentityFactoryLike(identityFactory_);
-        keyManager = KeyManagerLike(keyManager_);
     }
 
     event Minted(address to, uint tokenId);
@@ -70,9 +73,7 @@ contract NFT is ERC721Metadata {
      * @param values bytes[] value associated with each property
      * @param salts bytes[] salt associated with each property
      */
-    function _verifyAsset(address to, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) internal view returns (bool) {
-        require(to != address(0), "not a valid address");
-
+    function _verifyAsset(address to, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) internal view  {
         // construct assetHash from the props, values, salts
         // append to address
         bytes memory data = abi.encodePacked(to);
@@ -82,23 +83,45 @@ contract NFT is ERC721Metadata {
             data = abi.encodePacked(data, keccak256(abi.encodePacked(properties[i], values[i], salts[i])));
         }
 
-        return assetManager.isAssetValid(keccak256(data));
+        assetManager.verify(keccak256(data));
     }
 
     /**
-     * @dev Checks that provided document is signed by the given identity. Validates and checks if the public key used is a valid SIGNING_KEY.
+     * @dev Checks that provided document is signed by the given identity. Validates and checks if the public key used is a not revoked.
      * Does not check if the signature root is part of the document root.
-     * @param data_root bytes32 hash of all data fields of the document which are signed
-     * @param signature bytes The signature used to sign the data root
+     * @param identity address identity which is a collaborator of the document
+     * @param dataRoot bytes32 hash of all data fields of the document which are signed
+     * @param signature bytes contains signature + transition flag
      */
-    function _signed(bytes32 data_root, bytes memory signature) internal view {
-        // Extract the public key and identity address from the signature
-        address identity_ = data_root.toEthSignedMessageHash().recover(signature);
-        bytes32 pbKey_ = bytes32(uint(identity_) << 96);
+    function _signed(address identity, bytes32 dataRoot, bytes memory signature) internal view {
         // check that the identity being used has been created by the Centrifuge Identity Factory contract
-        require(identityFactory.createdIdentity(identity_), "Identity is not registered.");
+        require(identityFactory.createdIdentity(identity), "Identity is not registered.");
+        // extract flag from signature
+        (bytes memory sig, byte flag) = _recoverSignatureAndFlag(signature);
+        // Recalculate hash and extract the public key from the signature
+        address key = _reCalculateHash(dataRoot, flag).recover(sig);
+        bytes32 pubKey = bytes32(uint(key) << 96);
         // check that public key has signature purpose on provided identity
-        require(keyManager.keyHasPurpose(pbKey_, SIGNING_PURPOSE), "Signature key is not valid.");
+        KeyManagerLike keyManager = KeyManagerLike(identity);
+        require(keyManager.keyHasPurpose(pubKey, SIGNING_PURPOSE), "Signature key is not valid.");
+        (, , uint32 revokedAt) = keyManager.getKey(pubKey);
+        require(revokedAt == 0, "key is revoked");
+    }
+
+    function _recoverSignatureAndFlag(bytes memory signature) internal pure returns (bytes memory, byte) {
+        // ensure signature value is 66
+        require(signature.length == 66, "not a valid signature value");
+        byte flag = signature[65];
+        bytes memory sig = new bytes(65);
+        uint i = 0;
+        for (i = 0; i < 65; i++) {
+            sig[i] = signature[i];
+        }
+        return (sig, flag);
+    }
+
+    function _reCalculateHash(bytes32 dataRoot, byte flag) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n33", dataRoot, flag));
     }
 
     /**
@@ -163,6 +186,10 @@ contract NFT is ERC721Metadata {
         }
 
         return string(result);
+    }
+
+    function tokenURI( uint token_id) external view returns (string memory) {
+        return string(abi.encodePacked(uri, "0x", uintToHexStr(uint(address(this))), "/0x", uintToHexStr(token_id)));
     }
 }
 

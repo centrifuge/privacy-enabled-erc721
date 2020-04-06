@@ -15,14 +15,13 @@ Please specify the following env variables:
 * REGISTRY_SYMBOL
 * ASSET_MANAGER
 * IDENTITY_FACTORY
-* KEY_MANAGER
 
 "
 set -ex
 
 dapp update
 dapp build --extract
-REGISTRY=$(seth send --create out/NFT.bin 'NFT(string memory, string memory, address, address, address)' $REGISTRY_NAME $REGISTRY_SYMBOL $ASSET_MANAGER $IDENTITY_FACTORY $KEY_MANAGER)
+REGISTRY=$(seth send --create out/NFT.bin 'NFT(string memory, string memory, address, address)' $REGISTRY_NAME $REGISTRY_SYMBOL $ASSET_MANAGER $IDENTITY_FACTORY)
 
 set +ex
 echo "-------------------------------------------------------------------------------"
