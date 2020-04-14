@@ -87,7 +87,7 @@ contract NFT is ERC721Metadata {
     }
 
     /**
-     * @dev Checks that provided document is signed by the given identity. Validates and checks if the public key used is a not revoked.
+     * @dev Checks that provided document is signed by the given identity. Validates and checks if the public key used is a not revoked and has the purpose SIGNING_KEY.
      * Does not check if the signature root is part of the document root.
      * @param identity address identity which is a collaborator of the document
      * @param dataRoot bytes32 hash of all data fields of the document which are signed
@@ -95,7 +95,7 @@ contract NFT is ERC721Metadata {
      */
     function _signed(address identity, bytes32 dataRoot, bytes memory signature) internal view {
         // check that the identity being used has been created by the Centrifuge Identity Factory contract
-        require(identityFactory.createdIdentity(identity), "Identity is not registered.");
+        require(identityFactory.createdIdentity(identity), "nft/identity-not-registered");
         // extract flag from signature
         (bytes memory sig, byte flag) = _recoverSignatureAndFlag(signature);
         // Recalculate hash and extract the public key from the signature
@@ -103,14 +103,14 @@ contract NFT is ERC721Metadata {
         bytes32 pubKey = bytes32(uint(key) << 96);
         // check that public key has signature purpose on provided identity
         KeyManagerLike keyManager = KeyManagerLike(identity);
-        require(keyManager.keyHasPurpose(pubKey, SIGNING_PURPOSE), "Signature key is not valid.");
+        require(keyManager.keyHasPurpose(pubKey, SIGNING_PURPOSE), "nft/sig-key-not-valid");
         (, , uint32 revokedAt) = keyManager.getKey(pubKey);
-        require(revokedAt == 0, "key is revoked");
+        require(revokedAt == 0, "nft/key-revoked");
     }
 
     function _recoverSignatureAndFlag(bytes memory signature) internal pure returns (bytes memory, byte) {
         // ensure signature value is 66
-        require(signature.length == 66, "not a valid signature value");
+        require(signature.length == 66, "nft/invalid-signature-length");
         byte flag = signature[65];
         bytes memory sig = new bytes(65);
         uint i = 0;
@@ -192,4 +192,3 @@ contract NFT is ERC721Metadata {
         return string(abi.encodePacked(uri, "0x", uintToHexStr(uint(address(this))), "/0x", uintToHexStr(token_id)));
     }
 }
-
