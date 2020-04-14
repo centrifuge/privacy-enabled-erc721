@@ -79,7 +79,7 @@ contract TestNFT is NFT {
     */
     function mint(address usr, uint tkn, bytes32 dataRoot, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) public {
         _verifyAsset(usr, properties, values, salts);
-        _signed(identity, dataRoot, values[0]); // expect the first value to be collaborator signature
+        _signed_document(identity, dataRoot, values[0]); // expect the first value to be collaborator signature
         _checkTokenData(tkn, properties[1], values[1]); // expects the second property and value to be token unique proof
         _mint(usr, tkn);
     }

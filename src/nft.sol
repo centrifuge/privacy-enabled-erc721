@@ -93,13 +93,13 @@ contract NFT is ERC721Metadata {
      * @param dataRoot bytes32 hash of all data fields of the document which are signed
      * @param signature bytes contains signature + transition flag
      */
-    function _signed(address identity, bytes32 dataRoot, bytes memory signature) internal view {
+    function _signed_document(address identity, bytes32 dataRoot, bytes memory signature) internal view {
         // check that the identity being used has been created by the Centrifuge Identity Factory contract
         require(identityFactory.createdIdentity(identity), "nft/identity-not-registered");
         // extract flag from signature
         (bytes memory sig, byte flag) = _recoverSignatureAndFlag(signature);
         // Recalculate hash and extract the public key from the signature
-        address key = _reCalculateHash(dataRoot, flag).recover(sig);
+        address key = _toEthSignedMessage(dataRoot, flag).recover(sig);
         bytes32 pubKey = bytes32(uint(key) << 96);
         // check that public key has signature purpose on provided identity
         KeyManagerLike keyManager = KeyManagerLike(identity);
@@ -120,7 +120,7 @@ contract NFT is ERC721Metadata {
         return (sig, flag);
     }
 
-    function _reCalculateHash(bytes32 dataRoot, byte flag) internal pure returns (bytes32) {
+    function _toEthSignedMessage(bytes32 dataRoot, byte flag) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n33", dataRoot, flag));
     }
 
