@@ -100,6 +100,8 @@ contract NFT is ERC721Metadata {
         (bytes memory sig, byte flag) = _recoverSignatureAndFlag(signature);
         // Recalculate hash and extract the public key from the signature
         address key = _toEthSignedMessage(dataRoot, flag).recover(sig);
+// address has 20 bytes
+// pubkey has 32 bytes we bit shift (12*8=96) to the left
         bytes32 pubKey = bytes32(uint(key) << 96);
         // check that public key has signature purpose on provided identity
         KeyManagerLike keyManager = KeyManagerLike(identity);
