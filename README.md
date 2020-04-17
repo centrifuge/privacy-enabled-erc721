@@ -1,7 +1,7 @@
 # User-Mintable Privacy-Enabled NFTs
-[![Build Status](https://travis-ci.org/centrifuge/privacy-enabled-erc721-base.svg?branch=master)](https://travis-ci.org/centrifuge/privacy-enabled-erc721-base)
+[![Build Status](https://travis-ci.org/centrifuge/privacy-enabled-erc721.svg?branch=master)](https://travis-ci.org/centrifuge/privacy-enabled-erc721)
 
-This repo is a sample implemtation of [user-mintable, privacy-enabled NFTs](https://medium.com/centrifuge/user-mintable-privacy-enabled-nft-via-ethereum-erc-721-662ba7e4425) showing the mint process using an on-chain anchor registry as backing for document verification.
+This repo has a base implemtation of [user-mintable, privacy-enabled NFTs](https://medium.com/centrifuge/user-mintable-privacy-enabled-nft-via-ethereum-erc-721-662ba7e4425) showing the mint process using an on-chain anchor registry as backing for document verification.
 
 ## The General Idea
 
@@ -30,7 +30,7 @@ Please read the paper on [User-Mintable, Privacy-Enabled NFTs](https://www.centr
 
 
 ## Development
-Tinlake uses [dapp.tools](https://github.com/dapphub/dapptools) for development. Please install the `dapp` client. 
+This repository uses [dapp.tools](https://github.com/dapphub/dapptools) for development. Please install the `dapp` client.
 
 ### Install Dependencies
 ```bash 
@@ -38,7 +38,7 @@ dapp update
 ```
 
 ### Run Tests
-The tests for Tinlake are written in Solidity.
+The tests are written in Solidity.
 #### Run all tests
 ```bash
 dapp test
