@@ -20,7 +20,7 @@ import { ERC721Metadata } from "./openzeppelin-solidity/token/ERC721/ERC721Metad
 import "./openzeppelin-solidity/cryptography/ECDSA.sol";
 
 contract AssetManagerLike {
-    function verify(bytes32) public view;
+    function getHash(bytes32) public view returns (bool);
 }
 
 contract KeyManagerLike {
@@ -83,7 +83,7 @@ contract NFT is ERC721Metadata {
             data = abi.encodePacked(data, keccak256(abi.encodePacked(properties[i], values[i], salts[i])));
         }
 
-        assetManager.verify(keccak256(data));
+        require(assetManager.getHash(keccak256(data)), "nft/invalid-asset");
     }
 
     /**
@@ -100,8 +100,8 @@ contract NFT is ERC721Metadata {
         (bytes memory sig, byte flag) = _recoverSignatureAndFlag(signature);
         // Recalculate hash and extract the public key from the signature
         address key = _toEthSignedMessage(dataRoot, flag).recover(sig);
-// address has 20 bytes
-// pubkey has 32 bytes we bit shift (12*8=96) to the left
+        // address has 20 bytes
+        // pubkey has 32 bytes we bit shift (12*8=96) to the left
         bytes32 pubKey = bytes32(uint(key) << 96);
         // check that public key has signature purpose on provided identity
         KeyManagerLike keyManager = KeyManagerLike(identity);
@@ -131,8 +131,8 @@ contract NFT is ERC721Metadata {
      * @param tkn uint The ID for the token to be minted
      */
     function _checkTokenData(uint tkn, bytes memory property, bytes memory value) internal view {
-        require(_bytesToUint(value) == tkn, "tokenID mismatch");
         require(_equalBytes(property, abi.encodePacked(NFTS, address(this), hex"000000000000000000000000")), "token property mismatch");
+        require(_bytesToUint(value) == tkn, "tokenID mismatch");
     }
 
     /**

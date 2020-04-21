@@ -18,6 +18,7 @@ pragma experimental ABIEncoderV2;
 
 import "../nft.sol";
 import "../../lib/ds-test/src/test.sol";
+import "../asset_nft.sol";
 
 contract AssetManagerMock {
     mapping (bytes32 => uint8) public assets;
@@ -27,12 +28,37 @@ contract AssetManagerMock {
         assetValid = assetValid_;
     }
 
-    function verify(bytes32 ) external view {
-        require(assetValid, "asset doesn't exist");
+    function getHash(bytes32 ) external view returns (bool) {
+        return assetValid;
     }
 }
 
-contract KeyManagerMock {
+
+contract IDFactoryMock {
+    address identity;
+    bool validIdentity;
+
+    function file(bool validity_) public {
+        validIdentity = validity_;
+    }
+
+    function createdIdentity(address) public view returns (bool) {
+        return validIdentity;
+    }
+}
+
+contract NFTTest is DSTest {
+    AssetNFT nft;
+    AssetManagerMock assetManager;
+    IDFactoryMock identityFactory;
+    uint tokenId;
+    bytes32 dataRoot;
+    address to;
+    bytes[] props;
+    bytes[] values;
+    bytes32[] salts;
+    bytes32[] saltsInvalid;
+
     bytes32 key;
     uint[] mem;
     uint32 revoked = 1;
@@ -53,145 +79,195 @@ contract KeyManagerMock {
     function keyHasPurpose(bytes32, uint) public view returns (bool){
         return valid;
     }
-}
-
-contract IDFactoryMock {
-    address identity;
-    bool validIdentity;
-
-    function file(bool validity_) public {
-        validIdentity = validity_;
-    }
-
-    function createdIdentity(address) public view returns (bool) {
-        return validIdentity;
-    }
-}
-
-contract TestNFT is NFT {
-    address identity;
-    constructor (address assetManager, address identityFactory, address keyManager) NFT("Test NFT", "TNFT", assetManager, identityFactory) public {
-        identity = keyManager;
-    }
-
-    /**
-    @dev Mints NFT after verifying the asset, signture of the collaborator and token uniqueness
-    */
-    function mint(address usr, uint tkn, bytes32 dataRoot, bytes[] memory properties, bytes[] memory values, bytes32[] memory salts) public {
-        _verifyAsset(usr, properties, values, salts);
-        _signed_document(identity, dataRoot, values[0]); // expect the first value to be collaborator signature
-        _checkTokenData(tkn, properties[1], values[1]); // expects the second property and value to be token unique proof
-        _mint(usr, tkn);
-    }
-}
-
-contract NFTTest is DSTest {
-    TestNFT nft;
-    AssetManagerMock assetManager;
-    KeyManagerMock keyManager;
-    IDFactoryMock identityFactory;
-    uint tokenId;
-    bytes32 dataRoot;
-    address to;
-    bytes[] props;
-    bytes[] values;
-    bytes32[] salts;
-    bytes32[] saltsInvalid;
 
     function setUp() public {
         assetManager = new AssetManagerMock();
         identityFactory = new IDFactoryMock();
-        keyManager = new KeyManagerMock();
-        nft = new TestNFT(address(assetManager), address(identityFactory), address(keyManager));
+        nft = new AssetNFT(address(assetManager), address(identityFactory));
         tokenId = 1;
         to = address(1234);
         dataRoot = 0xca87e9ba4fcfc9eb27594e18d14dc3fb094913e67c9aa3f19e0e3205dbb7dbfa;
-        props = new bytes[](3);
-        props[0] = hex"392614ecdd98ce9b86b6c82242ae1b85aaf53ebe6f52490ed44539c88215b17a";
+        props = new bytes[](6);
+        props[0] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
         props[1] = hex"0100000000000014e821d1b50945ff736992d0af793684dd53ac7fa7000000000000000000000000";
-        props[2] = hex"000100000000000d";
+        props[2] = hex"010000000000001ce821d1b50945fd736992d0af793684dd53ac7ff7000000000000000000000000";
+        props[3] = hex"010000000000001ccd35852d8705a28d4f83ba46f02ebdf46daf03638b40da74b9371d715976e6dd00000005";
+        props[4] = hex"010000000000001cbbaa573c53fa357a3b53624eb6deab5f4c758f299cffc2b0b6162400e3ec13ee00000005";
+        props[5] = hex"010000000000001ce5588a8a267ed4c32962568afe216d4ba70ae60576a611e3ca557b84f1724e2900000005";
 
-        values = new bytes[](3);
-        values[0] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c0101";
+        values = new bytes[](6);
+        values[0] = hex"c631f33ee268544609b47de2903da8a41162df3f";
         values[1] = hex"fc03d8fc2094952d153396f1904513850b4f76fcfeaef9c44dcb6d7de1921674";
         values[2] = hex"443e4fa3d89952c9f24433d1112713a075d9205195dc9a16a12301caa1afb5d2";
+        values[3] = hex"0000000000000000000000000000000000000000000000056bc75e2d63100000";
+        values[4] = hex"a4c57ce7c1de38f90d11b56e05c24d11aecade34422c1504c9b7f04d9d7fed80";
+        values[5] = hex"000000005e9d5c300b3147b8";
 
-        salts = new bytes32[](3);
+        salts = new bytes32[](6);
         salts[0] = 0x34ea1aa3061dca2e1e23573c3b8866f80032d18fd85934d90339c8bafcab0408;
         salts[1] = 0xe257b56611cf3244b2b63bfe486ea3072f10223d473285f8fea868aae2323b39;
         salts[2] = 0xed58f4a0d0c76770c81d2b1cc035413edebb567f5c006160596dc73b9297a9cc;
+        salts[3] = 0x34ea1aa3061dca2e1e23573c3b8866f80032d18fd85934d90339c8bafcab0408;
+        salts[4] = 0xe257b56611cf3244b2b63bfe486ea3072f10223d473285f8fea868aae2323b39;
+        salts[5] = 0xed58f4a0d0c76770c81d2b1cc035413edebb567f5c006160596dc73b9297a9cc;
+    }
 
-        saltsInvalid = new bytes32[](3);
-        saltsInvalid[0] = 0x34ea1aa3061dca2e1e23573c3b8866f80032d18fd85934d90339c8bafcab0408;
-        saltsInvalid[1] = 0xe257b56611cf3244b2b63bfe486ea3072f10223d473285f8fea868aae2323b99;
-        saltsInvalid[2] = 0xed58f4a0d0c76770c81d2b1cc035413edebb567f5c006160596dc73b9297a9cd;
+    function toBytes(address x) internal pure returns (bytes memory b) {
+        b = new bytes(20);
+        for (uint i = 0; i < 20; i++)
+            b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
     }
 
     function testFailMismatchAssetHash() public logs_gas {
-        nft.mint(to, tokenId, dataRoot, props, values, saltsInvalid);
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailOriginatorPropMismatch() public logs_gas{
+        assetManager.file(true);
+        props[0] = hex"010000000000001cbbaa573c53fa357a3b53624eb6deab5f4c758f299cffc2b0b6162400e3ec13ee00000005";
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailOriginatorValueMismatch() public logs_gas{
+        assetManager.file(true);
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
     function testFailIdentityNotRegistered() public logs_gas {
         assetManager.file(true);
+        values[0] = toBytes(address(this));
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
+
 
     function testFailSignatureValueNotValid() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
-        values[0] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c01";
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c01";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
+
 
     function testFailKeyDoNotHaveValidPurpose() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
     function testFailKeyRevoked() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
-        keyManager.file(true);
-        nft.mint(to, tokenId, dataRoot, props, values, salts);
-    }
-
-    function testFailTokenIdMismatch() public logs_gas {
-        assetManager.file(true);
-        identityFactory.file(true);
-        keyManager.file(true);
-        keyManager.file(0);
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
     function testFailTokenPropertyMismatch() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
-        keyManager.file(true);
-        keyManager.file(0);
-        values[1] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
+
+    function testFailTokenIdMismatch() public logs_gas {
+        assetManager.file(true);
+        identityFactory.file(true);
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
+        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailAssetValuePropertyMismatch() public logs_gas{
+        assetManager.file(true);
+        identityFactory.file(true);
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
+        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[3] = hex"010000000000001cbbaa573c53fa357a3b53624eb6deab5f4c758f299cffc2b0b6162400e3ec13ee00000005";
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailAssetIDPropertyMismatch() public logs_gas{
+        assetManager.file(true);
+        identityFactory.file(true);
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
+        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[4] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailAssetIDLengthMismatch() public logs_gas{
+        assetManager.file(true);
+        identityFactory.file(true);
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
+        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        values[4] = hex"c631f33ee268544609b47de2903da8a41162df3f";
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
+    function testFailMaturityDatePropertyMismatch() public logs_gas{
+        assetManager.file(true);
+        identityFactory.file(true);
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
+        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[5] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
+        nft.mint(to, tokenId, dataRoot, props, values, salts);
+    }
+
 
     function testSuccessMintNFT() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
-        keyManager.file(true);
-        keyManager.file(0);
-        values[1] = hex"0000000000000000000000000000000000000000000000000000000000000001";
-        props[1] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
+        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
         assertEq(nft.balanceOf(to), 1);
         assertEq(nft.ownerOf(tokenId), to);
+        (address originator, uint asset_value, bytes32 asset_id, uint64 maturity_date) = nft.data(tokenId);
+        assertEq(originator, address(this));
+        assertEq0(abi.encode(asset_value), values[3]);
+        assertEq0(abi.encode(asset_id), values[4]);
+        assertEq(uint(maturity_date), 6817706772324763576);
     }
 
     function testFailDoubleMintNFT() public logs_gas {
         assetManager.file(true);
         identityFactory.file(true);
-        keyManager.file(true);
-        keyManager.file(0);
-        values[1] = hex"0000000000000000000000000000000000000000000000000000000000000001";
-        props[1] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[0] = toBytes(address(this));
+        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        file(true);
+        file(0);
+        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
         assertEq(nft.balanceOf(to), 1);
         assertEq(nft.ownerOf(tokenId), to);

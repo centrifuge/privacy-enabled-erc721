@@ -2,28 +2,25 @@
 
 echo "
 -------------------------------------------------------------------------------
-NFT Deployment Script
+Asset NFT Deployment Script
 -------------------------------------------------------------------------------
-This script deploys an instance of a Centrifuge NFT 
+This script deploys an instance of a Asset NFT
 
 Prerequisites:
 * This script uses the Seth Ethereum CLI which can be installed from http://dapp.tools by running 'curl https://dapp.tools/install | sh'
 * If you want to use an existing deployment of the asset registry, it can be found here: https://github.com/centrifuge/go-centrifuge/blob/develop/build/configs/default_config.yaml
 
 Please specify the following env variables:
-* REGISTRY_NAME
-* REGISTRY_SYMBOL
 * ASSET_MANAGER
 * IDENTITY_FACTORY
-
 "
 set -ex
 
 dapp update
 dapp build --extract
-REGISTRY=$(seth send --create out/NFT.bin 'NFT(string memory, string memory, address, address)' $REGISTRY_NAME $REGISTRY_SYMBOL $ASSET_MANAGER $IDENTITY_FACTORY)
+REGISTRY=$(seth send --create out/AssetNFT.bin 'AssetNFT(address, address)' $ASSET_MANAGER $IDENTITY_FACTORY)
 
 set +ex
 echo "-------------------------------------------------------------------------------"
-echo "NFT registry deployed to: $REGISTRY"
+echo "Asset NFT registry deployed to: $REGISTRY"
 echo "-------------------------------------------------------------------------------"
