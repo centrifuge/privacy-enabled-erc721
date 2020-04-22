@@ -89,19 +89,21 @@ contract NFTTest is DSTest {
         dataRoot = 0xca87e9ba4fcfc9eb27594e18d14dc3fb094913e67c9aa3f19e0e3205dbb7dbfa;
         props = new bytes[](6);
         props[0] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
-        props[1] = hex"0100000000000014e821d1b50945ff736992d0af793684dd53ac7fa7000000000000000000000000";
-        props[2] = hex"010000000000001ce821d1b50945fd736992d0af793684dd53ac7ff7000000000000000000000000";
-        props[3] = hex"010000000000001ccd35852d8705a28d4f83ba46f02ebdf46daf03638b40da74b9371d715976e6dd00000005";
-        props[4] = hex"010000000000001cbbaa573c53fa357a3b53624eb6deab5f4c758f299cffc2b0b6162400e3ec13ee00000005";
-        props[5] = hex"010000000000001ce5588a8a267ed4c32962568afe216d4ba70ae60576a611e3ca557b84f1724e2900000005";
+        props[1] = hex"010000000000001ccd35852d8705a28d4f83ba46f02ebdf46daf03638b40da74b9371d715976e6dd00000005";
+        props[2] = hex"010000000000001cbbaa573c53fa357a3b53624eb6deab5f4c758f299cffc2b0b6162400e3ec13ee00000005";
+        props[3] = hex"010000000000001ce5588a8a267ed4c32962568afe216d4ba70ae60576a611e3ca557b84f1724e2900000005";
+        props[4] = hex"0100000000000014e821d1b50945ff736992d0af793684dd53ac7fa7000000000000000000000000";
+        props[5] = hex"010000000000001ce821d1b50945fd736992d0af793684dd53ac7ff7000000000000000000000000";
+
 
         values = new bytes[](6);
         values[0] = hex"c631f33ee268544609b47de2903da8a41162df3f";
-        values[1] = hex"fc03d8fc2094952d153396f1904513850b4f76fcfeaef9c44dcb6d7de1921674";
-        values[2] = hex"443e4fa3d89952c9f24433d1112713a075d9205195dc9a16a12301caa1afb5d2";
-        values[3] = hex"0000000000000000000000000000000000000000000000056bc75e2d63100000";
-        values[4] = hex"a4c57ce7c1de38f90d11b56e05c24d11aecade34422c1504c9b7f04d9d7fed80";
-        values[5] = hex"000000005e9d5c300b3147b8";
+        values[1] = hex"0000000000000000000000000000000000000000000000056bc75e2d63100000";
+        values[2] = hex"a4c57ce7c1de38f90d11b56e05c24d11aecade34422c1504c9b7f04d9d7fed80";
+        values[3] = hex"000000005e9d5c300b3147b8";
+        values[4] = hex"fc03d8fc2094952d153396f1904513850b4f76fcfeaef9c44dcb6d7de1921674";
+        values[5] = hex"443e4fa3d89952c9f24433d1112713a075d9205195dc9a16a12301caa1afb5d2";
+
 
         salts = new bytes32[](6);
         salts[0] = 0x34ea1aa3061dca2e1e23573c3b8866f80032d18fd85934d90339c8bafcab0408;
@@ -144,7 +146,7 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c01";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -153,7 +155,7 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -161,7 +163,7 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
@@ -170,7 +172,7 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
         nft.mint(to, tokenId, dataRoot, props, values, salts);
@@ -180,10 +182,10 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
-        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        props[5] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -191,12 +193,12 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
-        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
-        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
-        props[3] = hex"010000000000001cbbaa573c53fa357a3b53624eb6deab5f4c758f299cffc2b0b6162400e3ec13ee00000005";
+        props[5] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[5] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[1] = hex"010000000000001cbbaa573c53fa357a3b53624eb6deab5f4c758f299cffc2b0b6162400e3ec13ee00000005";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -204,12 +206,12 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
-        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
-        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
-        props[4] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
+        props[5] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[5] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[2] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -217,12 +219,12 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
-        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
-        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
-        values[4] = hex"c631f33ee268544609b47de2903da8a41162df3f";
+        props[5] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[5] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        values[2] = hex"c631f33ee268544609b47de2903da8a41162df3f";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -230,12 +232,12 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
-        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
-        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
-        props[5] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
+        props[5] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[5] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[3] = hex"010000000000001ce24e7917d4fcaf79095539ac23af9f6d5c80ea8b0d95c9cd860152bff8fdab1700000005";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
     }
 
@@ -244,18 +246,18 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
-        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
-        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[5] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[5] = hex"0000000000000000000000000000000000000000000000000000000000000001";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
         assertEq(nft.balanceOf(to), 1);
         assertEq(nft.ownerOf(tokenId), to);
         (address originator, uint asset_value, bytes32 asset_id, uint64 maturity_date) = nft.data(tokenId);
         assertEq(originator, address(this));
-        assertEq0(abi.encode(asset_value), values[3]);
-        assertEq0(abi.encode(asset_id), values[4]);
+        assertEq0(abi.encode(asset_value), values[1]);
+        assertEq0(abi.encode(asset_id), values[2]);
         assertEq(uint(maturity_date), 6817706772324763576);
     }
 
@@ -263,11 +265,11 @@ contract NFTTest is DSTest {
         assetManager.file(true);
         identityFactory.file(true);
         values[0] = toBytes(address(this));
-        values[1] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
+        values[4] = hex"a2776063c2177a8e4be999fd337d939d03df0f341c50d2dac45dafad0008016e248cfb0076035c514dfc66af39e574bcc795a6af6b112a6ec90ff9291c766b7c7c01";
         file(true);
         file(0);
-        props[2] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
-        values[2] = hex"0000000000000000000000000000000000000000000000000000000000000001";
+        props[5] = abi.encodePacked(hex"0100000000000014", address(nft), hex"000000000000000000000000");
+        values[5] = hex"0000000000000000000000000000000000000000000000000000000000000001";
         nft.mint(to, tokenId, dataRoot, props, values, salts);
         assertEq(nft.balanceOf(to), 1);
         assertEq(nft.ownerOf(tokenId), to);

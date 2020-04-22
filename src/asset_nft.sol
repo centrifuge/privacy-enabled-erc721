@@ -33,29 +33,29 @@ contract AssetNFT is NFT {
         _verifyOriginator(properties[0], values[0]);
 
         // verify if the originator is centrifuge ID and the signature is signed by originator.
-        // we expect second value to be originator signature proof.
-        _signed_document(msg.sender, dataRoot, values[1]);
+        // we expect 4th value to be originator signature proof.
+        _signed_document(msg.sender, dataRoot, values[4]);
 
         // uniqueness check for NFT
-        // we expect 3rd property and value to be uniqueness proof
-        _checkTokenData(tkn, properties[2], values[2]);
+        // we expect 5th property and value to be uniqueness proof
+        _checkTokenData(tkn, properties[5], values[5]);
 
         // proof for asset_value
-        // we expect 4th property and value to be asset_value proof.
-        _verifyAssetValue(properties[3]);
+        // we expect 2nd property and value to be asset_value proof.
+        _verifyAssetValue(properties[1]);
 
         // proof for asset_id
-        // we expect 5th property and value to be asset_id proof.
-        _verifyAssetIdentifier(properties[4], values[4]);
+        // we expect 3rd property and value to be asset_id proof.
+        _verifyAssetIdentifier(properties[2], values[2]);
 
         // proof for maturity_date
-        // we expect 6th property and value to be maturity_date proof.
-        _verifyMaturityDate(properties[5]);
+        // we expect 4th property and value to be maturity_date proof.
+        _verifyMaturityDate(properties[3]);
         data[tkn] = TokenData(
             msg.sender,
-            abi.decode(values[3], (uint)),
-            abi.decode(values[4], (bytes32)),
-            uint64(_bytesToUint(values[5]))
+            abi.decode(values[1], (uint)),
+            abi.decode(values[2], (bytes32)),
+            uint64(_bytesToUint(values[3]))
         );
         _mint(to, tkn);
     }
