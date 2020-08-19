@@ -16,24 +16,8 @@ Please specify the following env variables:
 "
 set -ex
 
-export CENT_ENV=${CENT_ENV:-"fulvous"}
-export ETH_GAS=${ETH_GAS:-4712388}
-export ETH_KEYSTORE=${ETH_KEYSTORE:-./keystore}
-export ETH_RPC_URL=${ETH_RPC_URL:-"http://localhost:8545"}
-export ETH_PASSWORD=${ETH_PASSWORD:-"/dev/null"}
-export ETH_FROM=${ETH_FROM:-"0x89b0a86583c4444acfd71b463e0d3c55ae1412a5"}
-
-if [ -z "$ASSET_MANAGER" ]
-then
-  echo "Variable ASSET_MANAGER not set"
-  exit 1
-fi
-
-if [ -z "$IDENTITY_FACTORY" ]
-then
-  echo "Variable IDENTITY_FACTORY not set"
-  exit 1
-fi
+ASSET_MANAGER=${ASSET_MANAGER:-0xa0764952f9599cd0c4b3fddcac20293eee99c3e5}
+IDENTITY_FACTORY=${IDENTITY_FACTORY:-0x1362EcBf8679243E24fA0EC425d2e10A08223c7D}
 
 dapp update
 dapp build --extract
@@ -43,6 +27,3 @@ set +ex
 echo "-------------------------------------------------------------------------------"
 echo "Asset NFT registry deployed to: $REGISTRY"
 echo "-------------------------------------------------------------------------------"
-
-jq --arg addr $REGISTRY --arg env $CENT_ENV '.[$env].address = $addr' addresses.json > addresses_aux.json
-mv addresses_aux.json addresses.json
