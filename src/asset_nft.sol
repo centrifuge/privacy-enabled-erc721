@@ -55,17 +55,23 @@ contract AssetNFT is NFT {
             msg.sender,
             abi.decode(values[1], (uint)),
             abi.decode(values[2], (bytes32)),
-            uint64(_bytesToUint(values[3]))
+            bytesToTimestamp(values[3])
         );
         _mint(to, tkn);
     }
 
-    function _bytesToUint(bytes memory b) internal pure returns (uint){
-        uint256 number;
-        for (uint i = 0; i < b.length; i++){
-            number = number + uint8(b[i]) * (2 ** (8 * (b.length - (i + 1))));
+    function bytesToTimestamp(bytes memory _bytes) public pure returns (uint64){
+        bytes memory sec = new bytes(8);
+        for (uint i = 0; i< 8; i++){
+            sec[i] = _bytes[i];
         }
-        return number;
+
+        uint64 tempUint;
+        assembly {
+            tempUint := mload(add(add(sec, 0x8), 0))
+        }
+
+        return tempUint;
     }
 
     function bytesToAddress(bytes memory bys) private pure returns (address addr) {

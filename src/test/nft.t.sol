@@ -258,7 +258,7 @@ contract NFTTest is DSTest {
         assertEq(originator, address(this));
         assertEq0(abi.encode(asset_value), values[1]);
         assertEq0(abi.encode(asset_id), values[2]);
-        assertEq(uint(maturity_date), 6817706772324763576);
+        assertEq(uint(maturity_date), 1587371056);
     }
 
     function testFailDoubleMintNFT() public logs_gas {
